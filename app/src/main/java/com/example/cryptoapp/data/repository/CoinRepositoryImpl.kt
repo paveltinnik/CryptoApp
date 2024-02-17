@@ -2,8 +2,10 @@ package com.example.cryptoapp.data.repository
 
 import android.app.Application
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.map
 import com.example.cryptoapp.data.database.AppDatabase
+import com.example.cryptoapp.data.database.CoinInfoDbModel
 import com.example.cryptoapp.data.mapper.CoinMapper
 import com.example.cryptoapp.data.network.ApiFactory
 import com.example.cryptoapp.domain.CoinInfo
@@ -11,7 +13,7 @@ import com.example.cryptoapp.domain.CoinRepository
 import kotlinx.coroutines.delay
 
 class CoinRepositoryImpl(
-    private val application: Application
+    application: Application
 ): CoinRepository {
 
     private val coinInfoDao = AppDatabase.getInstance(application).coinPriceInfoDao()
@@ -19,7 +21,14 @@ class CoinRepositoryImpl(
     private val mapper = CoinMapper()
 
     override fun getCoinInfoList(): LiveData<List<CoinInfo>> {
-        return Transformations.map(coinInfoDao.getCoinInfoList()) {
+        val coinInfoList: LiveData<List<CoinInfoDbModel>> = coinInfoDao.getCoinInfoList()
+
+        val mediatorLiveData = MediatorLiveData<List<CoinInfoDbModel>>()
+        mediatorLiveData.addSource(coinInfoList) {
+            mediatorLiveData.value = it
+        }
+
+        return mediatorLiveData.map {
             it.map {
                 mapper.mapDbModelToEntity(it)
             }
@@ -27,7 +36,14 @@ class CoinRepositoryImpl(
     }
 
     override fun getCoinInfo(fromSymbol: String): LiveData<CoinInfo> {
-        return Transformations.map(coinInfoDao.getCoinInfo(fromSymbol)) {
+        val coinInfoDbModel: LiveData<CoinInfoDbModel> = coinInfoDao.getCoinInfo(fromSymbol)
+
+        val mediatorLiveData = MediatorLiveData<CoinInfoDbModel>()
+        mediatorLiveData.addSource(coinInfoDbModel) {
+            mediatorLiveData.value = it
+        }
+
+        return mediatorLiveData.map {
             mapper.mapDbModelToEntity(it)
         }
     }
