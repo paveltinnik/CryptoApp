@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(entities = [CoinInfoDbModel::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
+
     companion object {
 
         private var db: AppDatabase? = null
