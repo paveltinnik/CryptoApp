@@ -6,13 +6,13 @@ import com.example.cryptoapp.presentation.CoinDetailFragment
 import com.example.cryptoapp.presentation.CoinPriceListActivity
 import dagger.BindsInstance
 import dagger.Component
-import javax.inject.Inject
 
 @ApplicationScope
 @Component(
     modules = [
         DataModule::class,
-        ViewModelModule::class
+        ViewModelModule::class,
+        WorkerModule::class
     ]
 )
 interface ApplicationComponent {
